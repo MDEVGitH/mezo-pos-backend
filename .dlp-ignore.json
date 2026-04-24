@@ -1,0 +1,7 @@
+[
+    {
+        "path": "src/main/resources/application.yml",
+        "policy": "EmailPolicy",
+        "justification": "Development default values for local testing, not real credentials"
+    }
+]

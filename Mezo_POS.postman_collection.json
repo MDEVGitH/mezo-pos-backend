@@ -1,0 +1,1214 @@
+{
+	"info": {
+		"name": "Mezo POS API",
+		"description": "Colección completa de endpoints para Mezo POS Backend.\n\nFlujo sugerido:\n1. Register → Verify OTP → Login\n2. Create Business\n3. Create Categories → Create Products\n4. Create Tables\n5. Create Order → Add Lines → Update Status\n6. Close Sale\n7. Reports & Analytics",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api/v1"
+		},
+		{
+			"key": "accessToken",
+			"value": ""
+		},
+		{
+			"key": "refreshToken",
+			"value": ""
+		},
+		{
+			"key": "userId",
+			"value": ""
+		},
+		{
+			"key": "businessId",
+			"value": ""
+		},
+		{
+			"key": "categoryId",
+			"value": ""
+		},
+		{
+			"key": "productId",
+			"value": ""
+		},
+		{
+			"key": "tableId",
+			"value": ""
+		},
+		{
+			"key": "orderId",
+			"value": ""
+		},
+		{
+			"key": "orderLineId",
+			"value": ""
+		},
+		{
+			"key": "saleId",
+			"value": ""
+		},
+		{
+			"key": "teamUserId",
+			"value": ""
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "01. Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('userId', json.userId);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Test1234!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Verify OTP",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"code\": \"000000\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/verify-otp",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "verify-otp"]
+						}
+					}
+				},
+				{
+					"name": "Resend OTP",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/resend-otp",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "resend-otp"]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('accessToken', json.accessToken);",
+									"    pm.collectionVariables.set('refreshToken', json.refreshToken);",
+									"    pm.collectionVariables.set('userId', json.user.id);",
+									"    if (json.user.businesses && json.user.businesses.length > 0) {",
+									"        pm.collectionVariables.set('businessId', json.user.businesses[0].id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Test1234!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('accessToken', json.accessToken);",
+									"    pm.collectionVariables.set('refreshToken', json.refreshToken);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "refresh"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "02. Business",
+			"item": [
+				{
+					"name": "Create Business",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('businessId', json.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Café Mezo\",\n  \"type\": \"CAFE\",\n  \"phone\": \"+573001234567\",\n  \"nit\": \"900123456-1\",\n  \"address\": \"Calle 85 #15-20\",\n  \"city\": \"Bogotá\",\n  \"country\": \"Colombia\",\n  \"openAt\": \"07:00\",\n  \"closeAt\": \"22:00\",\n  \"tableCount\": 4\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses"]
+						}
+					}
+				},
+				{
+					"name": "List My Businesses",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses"]
+						}
+					}
+				},
+				{
+					"name": "Get Business",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Business",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Café Mezo Updated\",\n  \"nit\": \"900123456-2\",\n  \"openAt\": \"06:00\",\n  \"closeAt\": \"23:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}"]
+						}
+					}
+				},
+				{
+					"name": "Toggle Business Status",
+					"request": {
+						"method": "PATCH",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Delete Business",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "03. Categories",
+			"item": [
+				{
+					"name": "Create Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('categoryId', json.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Bebidas calientes\",\n  \"icon\": \"☕\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "categories"]
+						}
+					}
+				},
+				{
+					"name": "List Categories",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "categories"]
+						}
+					}
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Bebidas frías\",\n  \"icon\": \"🧊\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/categories/{{categoryId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "categories", "{{categoryId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/categories/{{categoryId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "categories", "{{categoryId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "04. Products",
+			"item": [
+				{
+					"name": "Create Product (with emoji)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('productId', json.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Cappuccino\",\n  \"price\": 8500,\n  \"currency\": \"COP\",\n  \"description\": \"Espresso con leche espumada\",\n  \"ingredients\": \"café, leche\",\n  \"productionCost\": 3200,\n  \"imageType\": \"EMOJI\",\n  \"image\": \"☕\",\n  \"categoryId\": \"{{categoryId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "products"]
+						}
+					}
+				},
+				{
+					"name": "Create Product (without category)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Brownie\",\n  \"price\": 8000,\n  \"currency\": \"COP\",\n  \"description\": \"Brownie de chocolate\",\n  \"imageType\": \"EMOJI\",\n  \"image\": \"🍫\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "products"]
+						}
+					}
+				},
+				{
+					"name": "List Products",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "products"]
+						}
+					}
+				},
+				{
+					"name": "List Products by Category",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/products?categoryId={{categoryId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "products"],
+							"query": [
+								{ "key": "categoryId", "value": "{{categoryId}}" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Product",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/products/{{productId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "products", "{{productId}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Cappuccino Grande\",\n  \"price\": 10500,\n  \"currency\": \"COP\",\n  \"description\": \"Cappuccino tamaño grande\",\n  \"ingredients\": \"café, leche, canela\",\n  \"productionCost\": 4000,\n  \"imageType\": \"EMOJI\",\n  \"image\": \"☕\",\n  \"categoryId\": \"{{categoryId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/products/{{productId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "products", "{{productId}}"]
+						}
+					}
+				},
+				{
+					"name": "Toggle Product Availability",
+					"request": {
+						"method": "PATCH",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/products/{{productId}}/toggle",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "products", "{{productId}}", "toggle"]
+						}
+					}
+				},
+				{
+					"name": "Upload Product Image",
+					"request": {
+						"method": "POST",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/products/upload-image",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "products", "upload-image"]
+						}
+					}
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/products/{{productId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "products", "{{productId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "05. Tables",
+			"item": [
+				{
+					"name": "Create Table (auto number)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('tableId', json.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/tables",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "tables"]
+						}
+					}
+				},
+				{
+					"name": "List Tables",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/tables",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "tables"]
+						}
+					}
+				},
+				{
+					"name": "Get Table Summary",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/tables/{{tableId}}/summary",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "tables", "{{tableId}}", "summary"]
+						}
+					}
+				},
+				{
+					"name": "Delete Table",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/tables/{{tableId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "tables", "{{tableId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "06. Orders",
+			"item": [
+				{
+					"name": "Create Order (from table)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('orderId', json.id);",
+									"    if (json.lines && json.lines.length > 0) {",
+									"        pm.collectionVariables.set('orderLineId', json.lines[0].id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tableId\": \"{{tableId}}\",\n  \"paymentMethod\": \"NEQUI\",\n  \"tip\": 2000,\n  \"lines\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 2 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Create Order (direct POS, no table)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('orderId', json.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tableId\": null,\n  \"paymentMethod\": \"CASH\",\n  \"tip\": 0,\n  \"lines\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "orders"]
+						}
+					}
+				},
+				{
+					"name": "List Orders",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "orders"]
+						}
+					}
+				},
+				{
+					"name": "List Orders (filter by status)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/orders?status=OPEN",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "orders"],
+							"query": [
+								{ "key": "status", "value": "OPEN" }
+							]
+						}
+					}
+				},
+				{
+					"name": "List Orders (filter by table)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/orders?tableId={{tableId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "orders"],
+							"query": [
+								{ "key": "tableId", "value": "{{tableId}}" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Order",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/orders/{{orderId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "orders", "{{orderId}}"]
+						}
+					}
+				},
+				{
+					"name": "Add Lines to Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"lines\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/orders/{{orderId}}/lines",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "orders", "{{orderId}}", "lines"]
+						}
+					}
+				},
+				{
+					"name": "Remove Line from Order",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/orders/{{orderId}}/lines/{{orderLineId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "orders", "{{orderId}}", "lines", "{{orderLineId}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Order Status → PREPARING",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"PREPARING\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/orders/{{orderId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "orders", "{{orderId}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Update Order Status → READY",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"READY\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/orders/{{orderId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "orders", "{{orderId}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Update Order Status → DELIVERED",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"DELIVERED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/orders/{{orderId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "orders", "{{orderId}}", "status"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "07. Sales",
+			"item": [
+				{
+					"name": "Close Sale (from existing order)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    if (json.length > 0) { pm.collectionVariables.set('saleId', json[0].id); }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"paymentMethod\": \"CASH\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/sales",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "sales"]
+						}
+					}
+				},
+				{
+					"name": "Close Sale (from table - all orders)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    if (json.length > 0) { pm.collectionVariables.set('saleId', json[0].id); }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tableId\": \"{{tableId}}\",\n  \"paymentMethod\": \"NEQUI\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/sales",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "sales"]
+						}
+					}
+				},
+				{
+					"name": "Close Sale (direct POS, no order)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    if (json.length > 0) { pm.collectionVariables.set('saleId', json[0].id); }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"paymentMethod\": \"CASH\",\n  \"tip\": 0,\n  \"lines\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 2 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/sales",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "sales"]
+						}
+					}
+				},
+				{
+					"name": "List Sales",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/sales",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "sales"]
+						}
+					}
+				},
+				{
+					"name": "List Sales (date range)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/sales?from=2026-01-01&to=2026-12-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "sales"],
+							"query": [
+								{ "key": "from", "value": "2026-01-01" },
+								{ "key": "to", "value": "2026-12-31" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Sale",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/sales/{{saleId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "sales", "{{saleId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "08. Reports (PRO/ELITE only)",
+			"item": [
+				{
+					"name": "Total Sales",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/reports/sales?time=MONTH",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "reports", "sales"],
+							"query": [
+								{ "key": "time", "value": "MONTH" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Sales Count",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/reports/count?time=WEEK",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "reports", "count"],
+							"query": [
+								{ "key": "time", "value": "WEEK" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Peak Hour",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/reports/peak-hour?time=MONTH",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "reports", "peak-hour"],
+							"query": [
+								{ "key": "time", "value": "MONTH" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Top Products",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/reports/top-products?time=WEEK&limit=5",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "reports", "top-products"],
+							"query": [
+								{ "key": "time", "value": "WEEK" },
+								{ "key": "limit", "value": "5" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Payment Methods",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/reports/payment-methods?time=QUARTER",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "reports", "payment-methods"],
+							"query": [
+								{ "key": "time", "value": "QUARTER" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "09. Analytics (PRO/ELITE only)",
+			"item": [
+				{
+					"name": "Analytics - Day (by hour)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/analytics?time=DAY",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "analytics"],
+							"query": [
+								{ "key": "time", "value": "DAY" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Analytics - Week (by day)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/analytics?time=WEEK",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "analytics"],
+							"query": [
+								{ "key": "time", "value": "WEEK" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Analytics - Month (by week)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/analytics?time=MONTH",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "analytics"],
+							"query": [
+								{ "key": "time", "value": "MONTH" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Analytics - Quarter (by month)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/analytics?time=QUARTER",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "analytics"],
+							"query": [
+								{ "key": "time", "value": "QUARTER" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Analytics - Year (by month)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/analytics?time=YEAR",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "analytics"],
+							"query": [
+								{ "key": "time", "value": "YEAR" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "10. Team",
+			"item": [
+				{
+					"name": "Invite Member",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    if (json.teamMember) {",
+									"        pm.collectionVariables.set('teamUserId', json.teamMember.userId);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"mesero@example.com\",\n  \"role\": \"WAITER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/team/invite",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "team", "invite"]
+						}
+					}
+				},
+				{
+					"name": "List Team",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/team",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "team"]
+						}
+					}
+				},
+				{
+					"name": "Update Member Role",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"CASHIER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/team/{{teamUserId}}/role",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "team", "{{teamUserId}}", "role"]
+						}
+					}
+				},
+				{
+					"name": "Remove Member",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}/team/{{teamUserId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["businesses", "{{businessId}}", "team", "{{teamUserId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "11. Plans & Subscriptions",
+			"item": [
+				{
+					"name": "List Plans (public)",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/plans",
+							"host": ["{{baseUrl}}"],
+							"path": ["plans"]
+						}
+					}
+				},
+				{
+					"name": "Get Current Plan",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/plans/current",
+							"host": ["{{baseUrl}}"],
+							"path": ["plans", "current"]
+						}
+					}
+				},
+				{
+					"name": "Subscribe to Plan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"planType\": \"ELITE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/plans/subscribe",
+							"host": ["{{baseUrl}}"],
+							"path": ["plans", "subscribe"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
